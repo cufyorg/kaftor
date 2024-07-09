@@ -82,13 +82,15 @@ class SimpleKafkaEngine internal constructor(
                     "${environment.rootTopic}.topic"
             }
 
-            client.subscribe(listOf(prefixedTopic))
-
             scope.launch {
-                if (autoCommitEnabled)
-                    loopCommitEnabled(client, handler)
-                else
-                    loopCommitDisabled(client, handler)
+                client.use {
+                    client.subscribe(listOf(prefixedTopic))
+
+                    if (autoCommitEnabled)
+                        loopCommitEnabled(client, handler)
+                    else
+                        loopCommitDisabled(client, handler)
+                }
             }
         }
 
