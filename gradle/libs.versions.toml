@@ -1,0 +1,25 @@
+[versions]
+kotlin = "2.0.0"
+kafka = "3.7.0"
+ktor = "2.3.12"
+
+[plugins]
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
+
+[libraries]
+kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.6.3" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.8.1" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
+
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
+kafka-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafka" }
+
+nomisrev-kotlinKafka = { module = "io.github.nomisrev:kotlin-kafka", version = "0.4.0" }
+
+ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktor" }
+
+logback-core = { module = "ch.qos.logback:logback-core", version = "1.5.5" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.5" }
+
+self4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.13" }
