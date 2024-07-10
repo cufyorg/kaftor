@@ -16,6 +16,7 @@
 package org.cufy.kafka.routing
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.cufy.kafka.routing.annotation.KafkaDsl
 
 var KafkaRoute.bootstrapServers: List<String>?
     get() = properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)?.split(",")
@@ -25,21 +26,21 @@ var KafkaRoute.groupId: String?
     get() = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG)
     set(value) = properties.set(ConsumerConfig.GROUP_ID_CONFIG, value)
 
-@Marker2
+@KafkaDsl
 @Stable
 fun KafkaRoute.route(topic: String, block: KafkaRoute.() -> Unit): KafkaRoute {
     @OptIn(ExperimentalKafkaRoutingAPI::class)
     return createRouteFromTopic(topic).apply(block)
 }
 
-@Marker2
+@KafkaDsl
 @Stable
 fun KafkaRoute.consume(topic: String, block: RoutingInterceptor<KafkaEvent>): KafkaRoute {
     @OptIn(ExperimentalKafkaRoutingAPI::class)
     return createRouteFromTopic(topic).apply { handle(block) }
 }
 
-@Marker2
+@KafkaDsl
 @Stable
 fun KafkaRoute.consume(block: RoutingInterceptor<KafkaEvent>): KafkaRoute {
     return apply { handle(block) }
