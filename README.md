@@ -50,11 +50,11 @@ fun main() {
 
 fun KafkaRoute.module() {
     bootstrapServers = listOf(
-        "server1.kafka.meemer.com:59002",
-        "server2.kafka.meemer.com:59012",
-        "server3.kafka.meemer.com:59022",
+        "server1.kafka.example.com:59002",
+        "server2.kafka.example.com:59012",
+        "server3.kafka.example.com:59022",
     )
-    groupId = "dev2.meemer.com:main_group"
+    groupId = "dev.example.com:main_group"
     properties["auto.commit.enabled"] = "false"
     properties.load(PROPERTIES.reader())
 
@@ -74,7 +74,8 @@ fun KafkaRoute.module() {
         val o = event.record.offset
         val k = event.record.key
 
-        println("Unhanded event: partition=$p, offset=$o, key=$k")
+        println("Unhandled event: partition=$p, offset=$o, key=$k")
+        event.commit()
     }
 
     // register handler for topic `random-words`
