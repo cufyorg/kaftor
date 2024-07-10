@@ -16,7 +16,6 @@
 package org.cufy.kafka.routing
 
 import kotlinx.coroutines.*
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.ByteBufferDeserializer
@@ -62,8 +61,7 @@ class SimpleKafkaEngine internal constructor(
             val topic = route.calculateTopic()
             val properties = route.calculateProperties()
             val handler = createCombinedHandler(route)
-
-            val autoCommitEnabled = "false" != properties.getProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)
+            val autoCommitEnabled = isAutoCommitEnabledIn(properties)
 
             val client = KafkaConsumer(
                 /* properties = */ properties,
@@ -137,7 +135,7 @@ class SimpleKafkaEngine internal constructor(
                             val o = event.record.offset
                             val k = event.record.key
 
-                            environment.log.warn("Unhanded event: partition=$p, offset=$o, key=$k")
+                            environment.log.warn("Unhandled event: partition=$p, offset=$o, key=$k")
                         }
                     }
                 }
@@ -177,7 +175,7 @@ class SimpleKafkaEngine internal constructor(
 
                             val timeout = configuration.unhandledRetryInterval
 
-                            environment.log.info("Unhanded event: retrying in $timeout")
+                            environment.log.info("Unhandled event: retrying in $timeout")
 
                             delay(timeout)
                         }

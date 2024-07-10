@@ -19,6 +19,7 @@ package org.cufy.kafka.routing
 
 import io.ktor.util.*
 import kotlinx.datetime.Instant
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.record.TimestampType
 import java.nio.ByteBuffer
@@ -139,57 +140,11 @@ internal fun KafkaRoute.calculateProperties(): Properties {
     return properties
 }
 
-internal fun KafkaRoute.createCombinedHandler(): RoutingInterceptor<Unit> {
-    val onSetupBlocks = hierarchy.flatMap { it.onSetupBlocks }.toList()
-    val onCleanupBlocks = hierarchy.flatMap { it.onCleanupBlocks }.toList()
-    val fallbackHandlers = hierarchy.flatMap { it.fallbackHandlers }.toList()
-    val errorHandlers = hierarchy.flatMap { it.errorHandlers }.toList()
-    val handlers = handlers.toList()
-
-    return it@{
-        suspend fun doCatch(error: Throwable) {
-            event.offset.error = error
-
-            for (errorHandler in errorHandlers) {
-                if (event.offset.isCommitted) return
-                errorHandler(this, error)
-            }
-
-            if (event.offset.isCommitted) return
-            error.printStackTrace()
-        }
-
-        suspend fun doCleanup() {
-            for (onCleanupBlock in onCleanupBlocks) {
-                try {
-                    onCleanupBlock(this, event)
-                } catch (error: Throwable) {
-                    doCatch(error)
-                }
-            }
-        }
-
-        for (onSetupBlock in onSetupBlocks) {
-            try {
-                onSetupBlock(this, event)
-            } catch (error: Exception) {
-                doCatch(error)
-                return@it
-            } finally {
-                doCleanup()
-            }
-        }
-
-        for (handler in handlers + fallbackHandlers) {
-            try {
-                if (event.offset.isCommitted) return@it
-                handler(this, event)
-            } catch (error: Exception) {
-                doCatch(error)
-                return@it
-            } finally {
-                doCleanup()
-            }
-        }
+internal fun isAutoCommitEnabledIn(properties: Properties): Boolean {
+    val value = properties[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG]
+    return when (value) {
+        true, "true" -> true
+        false, "false" -> false
+        else -> true
     }
 }
