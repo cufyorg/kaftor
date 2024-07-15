@@ -19,7 +19,6 @@ package org.cufy.kafka.routing
 
 import io.ktor.util.*
 import kotlinx.datetime.Instant
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.record.TimestampType
 import java.nio.ByteBuffer
@@ -138,13 +137,4 @@ internal fun KafkaRoute.calculateProperties(): Properties {
         properties.putAll(route.properties)
     }
     return properties
-}
-
-internal fun isAutoCommitEnabledIn(properties: Properties): Boolean {
-    val value = properties[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG]
-    return when (value) {
-        true, "true" -> true
-        false, "false" -> false
-        else -> true
-    }
 }

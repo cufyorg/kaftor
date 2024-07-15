@@ -15,16 +15,7 @@
  */
 package org.cufy.kafka.routing
 
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.cufy.kafka.routing.annotation.KafkaDsl
-
-var KafkaRoute.bootstrapServers: List<String>?
-    get() = properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)?.split(",")
-    set(value) = properties.set(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, value?.joinToString(","))
-
-var KafkaRoute.groupId: String?
-    get() = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG)
-    set(value) = properties.set(ConsumerConfig.GROUP_ID_CONFIG, value)
 
 @KafkaDsl
 @Stable

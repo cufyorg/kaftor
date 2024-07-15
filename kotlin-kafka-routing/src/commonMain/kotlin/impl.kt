@@ -21,6 +21,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.ByteBufferDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
 @ExperimentalKafkaRoutingAPI
@@ -34,10 +35,7 @@ class SimpleKafkaEnvironment internal constructor(
 class SimpleKafkaEngine internal constructor(
     override val environment: KafkaEnvironment,
     private val modules: List<KafkaRoute.() -> Unit>,
-    configure: KafkaEngine.Configuration.() -> Unit,
 ) : KafkaEngine {
-    private val configuration = KafkaEngine.Configuration().apply(configure)
-
     private val _job = AtomicReference<Job>()
     override val application = KafkaApplication(environment, environment.developmentMode)
 
@@ -61,7 +59,6 @@ class SimpleKafkaEngine internal constructor(
             val topic = route.calculateTopic()
             val properties = route.calculateProperties()
             val handler = createCombinedHandler(route)
-            val autoCommitEnabled = isAutoCommitEnabledIn(properties)
 
             val client = KafkaConsumer(
                 /* properties = */ properties,
@@ -84,10 +81,10 @@ class SimpleKafkaEngine internal constructor(
                 client.use {
                     client.subscribe(listOf(prefixedTopic))
 
-                    if (autoCommitEnabled)
-                        loopCommitEnabled(client, handler)
+                    if (route.autoCommitEnabled)
+                        loopCommitEnabled(client, route, handler)
                     else
-                        loopCommitDisabled(client, handler)
+                        loopCommitDisabled(client, route, handler)
                 }
             }
         }
@@ -109,14 +106,18 @@ class SimpleKafkaEngine internal constructor(
 
     private suspend fun loopCommitEnabled(
         client: RoutingKafkaConsumer,
+        route: KafkaRoute,
         handler: RoutingInterceptor<Unit>,
     ) {
         while (true) {
             yield()
 
-            val records = poll(client)
+            val records = poll(client, route.pollTimeout)
 
-            if (records.isEmpty) continue
+            if (records.isEmpty) {
+                delay(route.emptyPollCooldown)
+                continue
+            }
 
             coroutineScope {
                 for (record in records) {
@@ -145,14 +146,18 @@ class SimpleKafkaEngine internal constructor(
 
     private suspend fun loopCommitDisabled(
         client: RoutingKafkaConsumer,
+        route: KafkaRoute,
         handler: RoutingInterceptor<Unit>,
     ) {
         while (true) {
             yield()
 
-            val records = poll(client)
+            val records = poll(client, route.pollTimeout)
 
-            if (records.isEmpty) continue
+            if (records.isEmpty) {
+                delay(route.emptyPollCooldown)
+                continue
+            }
 
             coroutineScope {
                 for (record in records) {
@@ -173,7 +178,7 @@ class SimpleKafkaEngine internal constructor(
                                 break
                             }
 
-                            val timeout = configuration.unhandledRetryInterval
+                            val timeout = route.unhandledRetryInterval
 
                             environment.log.info("Unhandled event: retrying in $timeout")
 
@@ -185,11 +190,12 @@ class SimpleKafkaEngine internal constructor(
         }
     }
 
-    private suspend fun poll(client: RoutingKafkaConsumer): RoutingConsumerRecords {
+    private suspend fun poll(
+        client: RoutingKafkaConsumer,
+        timeout: Duration
+    ): RoutingConsumerRecords {
         return withContext(Dispatchers.IO) {
             try {
-                val timeout = configuration.pollTimeout
-
                 client.poll(timeout.toJavaDuration())
             } catch (e: Exception) {
                 e.printStackTrace()

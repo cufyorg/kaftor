@@ -23,9 +23,32 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.record.TimestampType
 import java.nio.ByteBuffer
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
+
+object RoutingConfig {
+    /**
+     * If automatic commit was disabled and an event
+     * was failed to be handled. How long to wait
+     * before retrying again (in milliseconds).
+     *
+     * - default = 1000
+     */
+    const val UNHANDLED_RETRY_INTERVAL = "routing.unhandled.retry.interval"
+
+    /**
+     * If the broker return nothing in a poll, this is the
+     * time to wait before polling again.
+     *
+     * - default = 1000
+     */
+    const val EMPTY_POLL_COOLDOWN = "routing.empty.poll.cooldown"
+
+    /**
+     * The maximum time to wait when polling.
+     *
+     * - default = 100
+     */
+    const val POLL_TIMEOUT = "routing.poll.timeout"
+}
 
 typealias RoutingKafkaConsumer = KafkaConsumer<String, ByteBuffer>
 typealias RoutingConsumerRecord = ConsumerRecord<String, ByteBuffer>
@@ -116,20 +139,6 @@ sealed interface KafkaEnvironment {
 
 // corresponds to ApplicationEngine
 sealed interface KafkaEngine {
-    open class Configuration {
-        /**
-         * If automatic commit was disabled and an event
-         * was failed to be handled. How long to wait
-         * before retrying again.
-         */
-        val unhandledRetryInterval: Duration = 1.seconds
-
-        /**
-         * The maximum time to wait when polling.
-         */
-        val pollTimeout: Duration = 100.milliseconds
-    }
-
     /**
      * An environment used to run this engine.
      */

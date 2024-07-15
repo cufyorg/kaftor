@@ -23,7 +23,6 @@ fun embeddedConsumer(module: KafkaRoute.() -> Unit): KafkaEngine {
         log = LoggerFactory.getLogger("kafka.application"),
         rootTopic = "",
         developmentMode = false,
-        configure = {},
         module = module,
     )
 }
@@ -33,7 +32,6 @@ fun embeddedConsumer(
     log: Logger,
     rootTopic: String,
     developmentMode: Boolean,
-    configure: KafkaEngine.Configuration .() -> Unit = {},
     module: KafkaRoute.() -> Unit,
 ): KafkaEngine {
     val environment = SimpleKafkaEnvironment(
@@ -45,6 +43,5 @@ fun embeddedConsumer(
     return SimpleKafkaEngine(
         environment,
         listOf(module),
-        configure,
     )
 }
