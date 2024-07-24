@@ -119,7 +119,7 @@ private data class KafkaOffsetImpl(
 internal fun KafkaRoute.calculateTopic(): String {
     val segments = mutableListOf<String>()
 
-    for (route in hierarchy) {
+    for (route in hierarchy.asReversed()) {
         when (val selector = route.selector) {
             is EmptyRouteSelector -> {}
 
