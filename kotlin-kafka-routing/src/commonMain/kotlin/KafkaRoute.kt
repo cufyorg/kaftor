@@ -71,7 +71,7 @@ fun KafkaRoute.createRouteFromTopic(topic: String): KafkaRoute {
     var current: KafkaRoute = this
     for (index in parts.indices) {
         val value = parts[index]
-        val selector = TopicSegmentConstantRouteSelector(topic)
+        val selector = TopicSegmentConstantRouteSelector(value)
 
         // there may already be entry with same selector, so join them
         current = current.createChild(selector)
