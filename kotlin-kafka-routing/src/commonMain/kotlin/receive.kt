@@ -20,6 +20,13 @@ import kotlinx.serialization.json.Json
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 
+fun KafkaRecord.header(name: String): String? {
+    return headers
+        .firstOrNull { it.key().contentEquals(name, ignoreCase = true) }
+        ?.value()
+        ?.decodeToString()
+}
+
 @Stable
 @Suppress("RedundantSuspendModifier")
 suspend fun KafkaEvent.receiveText(): String {
