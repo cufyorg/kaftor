@@ -30,7 +30,7 @@ fun KafkaRecord.header(name: String): String? {
 @Stable
 @Suppress("RedundantSuspendModifier")
 suspend fun KafkaEvent.receiveText(): String {
-    return record.value.decodeString()
+    return record.value.rewind().decodeString()
 }
 
 @Stable
@@ -46,5 +46,5 @@ suspend fun <T> KafkaEvent.receive(serde: Serde<T>): T {
 @Stable
 @Suppress("RedundantSuspendModifier")
 suspend fun <T> KafkaEvent.receive(deserializer: Deserializer<T>): T {
-    return deserializer.deserialize(record.topic, record.headers, record.value)
+    return deserializer.deserialize(record.topic, record.headers, record.value.rewind())
 }
