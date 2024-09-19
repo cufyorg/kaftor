@@ -160,33 +160,37 @@ class SimpleKafkaEngine internal constructor(
             }
 
             coroutineScope {
-                for (record in records) {
-                    launch {
-                        val event = createKafkaEvent(application, record)
-                        val context = createKafkaRoutingContext(event)
+                for (record in records) launch {
+                    val event = createKafkaEvent(application, record)
+                    val context = createKafkaRoutingContext(event)
 
-                        while (true) {
-                            handler(context, Unit)
+                    while (true) {
+                        handler(context, Unit)
 
-                            // auto commit was disabled, at-least-once behaviour
-                            // is desired. Commit the event only if the event was
-                            // explicitly declared it was commited.
+                        // auto commit was disabled, at-least-once behaviour
+                        // is desired. Stop retrying only if the event was
+                        // explicitly declared it was commited.
+                        if (event.offset.isCommitted)
+                            break
 
-                            @OptIn(ExperimentalKafkaRoutingAPI::class)
-                            if (event.offset.isCommitted) {
-                                commitSync(client)
-                                break
-                            }
+                        val timeout = route.unhandledRetryInterval
 
-                            val timeout = route.unhandledRetryInterval
+                        val p = event.record.partition
+                        val o = event.record.offset
+                        val k = event.record.key
 
-                            environment.log.info("Unhandled event: retrying in $timeout")
+                        environment.log.warn("Unhandled event: retrying in $timeout (partition=$p, offset=$o, key=$k)")
 
-                            delay(timeout)
-                        }
+                        delay(timeout)
                     }
                 }
             }
+
+            // When all the coroutines handling the records are done.
+            // Then, and only then, commit the batch.
+            // *no need to specify exactly what to commit since its only
+            //  this coroutine that is expected to use the client.
+            commitSync(client)
         }
     }
 
