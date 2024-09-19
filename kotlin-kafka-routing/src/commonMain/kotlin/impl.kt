@@ -97,14 +97,27 @@ class SimpleKafkaEngine internal constructor(
 
         environment.log.info("Consumers started in $prepareElapsedSeconds seconds.")
 
+        val shutdownHook = Thread {
+            runBlocking { job.cancelAndJoin() }
+        }
+
+        Runtime.getRuntime().addShutdownHook(shutdownHook)
+
+        job.invokeOnCompletion {
+            val stopMillis = currentTimeMillis()
+            val serviceElapsedMinutes = (readyMillis - stopMillis) / 1_000.0 / 60.0
+
+            environment.log.info("Consumers stopped after $serviceElapsedMinutes minutes of service.")
+
+            try {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook)
+            } catch (_: IllegalStateException) {
+            }
+        }
+
         if (wait) {
             runBlocking {
                 job.join()
-
-                val stopMillis = currentTimeMillis()
-                val serviceElapsedMinutes = (readyMillis - stopMillis) / 1_000.0 / 60.0
-
-                environment.log.info("Consumers stopped after $serviceElapsedMinutes minutes of service.")
             }
         }
 
