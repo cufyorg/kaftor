@@ -105,7 +105,8 @@ class SimpleKafkaEngine internal constructor(
 
         job.invokeOnCompletion {
             val stopMillis = currentTimeMillis()
-            val serviceElapsedMinutes = (readyMillis - stopMillis) / 1_000.0 / 60.0
+            val serviceElapsedMinutes = ((stopMillis - readyMillis) / 1_000.0 / 60.0)
+                .times(10).toInt().div(10)
 
             environment.log.info("Consumers stopped after $serviceElapsedMinutes minutes of service.")
 
