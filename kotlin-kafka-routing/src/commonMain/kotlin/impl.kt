@@ -20,6 +20,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.ByteBufferDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
@@ -44,6 +45,8 @@ class SimpleKafkaEngine internal constructor(
         val oldJob = _job.getAndSet(job)
 
         oldJob?.cancel()
+
+        val startMillis = currentTimeMillis()
 
         val root = KafkaRoute(null, EmptyRouteSelector)
         modules.forEach { root.apply(it) }
@@ -89,9 +92,19 @@ class SimpleKafkaEngine internal constructor(
             }
         }
 
+        val readyMillis = currentTimeMillis()
+        val prepareElapsedSeconds = (readyMillis - startMillis) / 1_000.0
+
+        environment.log.info("Consumers started in $prepareElapsedSeconds seconds.")
+
         if (wait) {
             runBlocking {
                 job.join()
+
+                val stopMillis = currentTimeMillis()
+                val serviceElapsedMinutes = (readyMillis - stopMillis) / 1_000.0 / 60.0
+
+                environment.log.info("Consumers stopped after $serviceElapsedMinutes minutes of service.")
             }
         }
 
@@ -120,24 +133,21 @@ class SimpleKafkaEngine internal constructor(
             }
 
             coroutineScope {
-                for (record in records) {
-                    launch {
-                        val event = createKafkaEvent(application, record)
-                        val context = createKafkaRoutingContext(event)
+                for (record in records) launch {
+                    val event = createKafkaEvent(application, record)
+                    val context = createKafkaRoutingContext(event)
 
-                        handler(context, Unit)
+                    handler(context, Unit)
 
-                        // regardless if the event was commited or not
-                        // auto commit was enabled thus implies that
-                        // at-most-once behaviour is desired.
-                        @OptIn(ExperimentalKafkaRoutingAPI::class)
-                        if (!event.offset.isCommitted) {
-                            val p = event.record.partition
-                            val o = event.record.offset
-                            val k = event.record.key
+                    // regardless if the event was commited or not
+                    // auto commit was enabled thus implies that
+                    // at-most-once behaviour is desired.
+                    if (!event.offset.isCommitted) {
+                        val p = event.record.partition
+                        val o = event.record.offset
+                        val k = event.record.key
 
-                            environment.log.warn("Unhandled event: partition=$p, offset=$o, key=$k")
-                        }
+                        environment.log.warn("Unhandled event: ignoring event (partition=$p, offset=$o, key=$k)")
                     }
                 }
             }
@@ -196,7 +206,7 @@ class SimpleKafkaEngine internal constructor(
 
     private suspend fun poll(
         client: RoutingKafkaConsumer,
-        timeout: Duration
+        timeout: Duration,
     ): RoutingConsumerRecords {
         return withContext(Dispatchers.IO) {
             try {
