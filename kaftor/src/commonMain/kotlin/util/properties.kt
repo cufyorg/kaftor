@@ -1,6 +1,6 @@
-package org.cufy.kafka.routing.util
+package org.cufy.kaftor.util
 
-import org.cufy.kafka.routing.KafkaRoute
+import org.cufy.kaftor.KafkaRoute
 import java.util.*
 import kotlin.reflect.KProperty
 import kotlin.time.Duration

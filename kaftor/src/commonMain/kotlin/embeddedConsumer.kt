@@ -13,12 +13,12 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
 import org.slf4j.LoggerFactory
 
 fun embeddedConsumer(module: KafkaRoute.() -> Unit): KafkaEngine {
-    @OptIn(ExperimentalKafkaRoutingAPI::class)
+    @OptIn(ExperimentalKaftorAPI::class)
     return embeddedConsumer(
         log = LoggerFactory.getLogger("kafka.application"),
         rootTopic = "",
@@ -27,7 +27,7 @@ fun embeddedConsumer(module: KafkaRoute.() -> Unit): KafkaEngine {
     )
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun embeddedConsumer(
     log: Logger,
     rootTopic: String,

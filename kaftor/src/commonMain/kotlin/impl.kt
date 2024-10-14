@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
 import kotlinx.coroutines.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -25,14 +25,14 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 class SimpleKafkaEnvironment internal constructor(
     override val log: Logger,
     override val rootTopic: String,
     override val developmentMode: Boolean,
 ) : KafkaEnvironment
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 class SimpleKafkaEngine internal constructor(
     override val environment: KafkaEnvironment,
     private val modules: List<KafkaRoute.() -> Unit>,
@@ -132,7 +132,7 @@ class SimpleKafkaEngine internal constructor(
     }
 
     private suspend fun loopCommitEnabled(
-        client: RoutingKafkaConsumer,
+        client: KaftorConsumer,
         route: KafkaRoute,
         handler: RoutingInterceptor<Unit>,
     ) {
@@ -169,7 +169,7 @@ class SimpleKafkaEngine internal constructor(
     }
 
     private suspend fun loopCommitDisabled(
-        client: RoutingKafkaConsumer,
+        client: KaftorConsumer,
         route: KafkaRoute,
         handler: RoutingInterceptor<Unit>,
     ) {
@@ -219,9 +219,9 @@ class SimpleKafkaEngine internal constructor(
     }
 
     private suspend fun poll(
-        client: RoutingKafkaConsumer,
+        client: KaftorConsumer,
         timeout: Duration,
-    ): RoutingConsumerRecords {
+    ): KaftorConsumerRecords {
         return withContext(Dispatchers.IO) {
             try {
                 client.poll(timeout.toJavaDuration())
@@ -235,7 +235,7 @@ class SimpleKafkaEngine internal constructor(
         }
     }
 
-    private suspend fun commitSync(client: RoutingKafkaConsumer) {
+    private suspend fun commitSync(client: KaftorConsumer) {
         withContext(Dispatchers.IO) {
             try {
                 client.commitSync()

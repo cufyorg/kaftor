@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing.annotation
+package org.cufy.kaftor.dsl
 
 @DslMarker
-annotation class KafkaDsl
+annotation class KaftorDsl

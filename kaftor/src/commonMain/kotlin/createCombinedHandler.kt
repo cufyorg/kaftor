@@ -13,9 +13,9 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
-@OptIn(ExperimentalKafkaRoutingAPI::class)
+@OptIn(ExperimentalKaftorAPI::class)
 internal fun createCombinedHandler(route: KafkaRoute): RoutingInterceptor<Unit> {
     val onSetupBlocks = route.hierarchy.flatMap { it.onSetupBlocks }.toList()
     val onCleanupBlocks = route.hierarchy.flatMap { it.onCleanupBlocks }.toList()

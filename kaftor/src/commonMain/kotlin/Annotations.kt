@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
 @DslMarker // style4
 annotation class Marker0
@@ -30,4 +30,4 @@ annotation class Marker3
 annotation class Stable
 
 @RequiresOptIn
-annotation class ExperimentalKafkaRoutingAPI
+annotation class ExperimentalKaftorAPI

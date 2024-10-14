@@ -13,46 +13,46 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
-import org.cufy.kafka.routing.annotation.KafkaDsl
+import org.cufy.kaftor.dsl.KaftorDsl
 
-@KafkaDsl
+@KaftorDsl
 @Stable
 fun KafkaRoute.route(topic: String, block: KafkaRoute.() -> Unit): KafkaRoute {
-    @OptIn(ExperimentalKafkaRoutingAPI::class)
+    @OptIn(ExperimentalKaftorAPI::class)
     return createRouteFromTopic(topic).apply(block)
 }
 
-@KafkaDsl
+@KaftorDsl
 @Stable
 fun KafkaRoute.consume(topic: String, block: RoutingInterceptor<KafkaEvent>): KafkaRoute {
-    @OptIn(ExperimentalKafkaRoutingAPI::class)
+    @OptIn(ExperimentalKaftorAPI::class)
     return createRouteFromTopic(topic).apply { handle(block) }
 }
 
-@KafkaDsl
+@KaftorDsl
 @Stable
 fun KafkaRoute.consume(block: RoutingInterceptor<KafkaEvent>): KafkaRoute {
     return apply { handle(block) }
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun KafkaRoute.fallbackHandler(handler: RoutingInterceptor<KafkaEvent>) {
     fallbackHandlers += handler
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun KafkaRoute.errorHandler(handler: RoutingInterceptor<Throwable>) {
     errorHandlers += handler
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun KafkaRoute.onSetupStage(handler: RoutingInterceptor<KafkaEvent>) {
     onSetupBlocks += handler
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun KafkaRoute.onCleanupStage(handler: RoutingInterceptor<KafkaEvent>) {
     onCleanupBlocks += handler
 }

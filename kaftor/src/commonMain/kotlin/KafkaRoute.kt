@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
 import java.util.*
 
@@ -65,7 +65,7 @@ class KafkaRoute(val parent: KafkaRoute?, val selector: KafkaRouteSelector) {
     }
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 fun KafkaRoute.createRouteFromTopic(topic: String): KafkaRoute {
     val parts = topic.split(".")
     var current: KafkaRoute = this
@@ -85,5 +85,5 @@ data class TopicSegmentConstantRouteSelector(val value: String) : KafkaRouteSele
     override fun toString() = value
 }
 
-@ExperimentalKafkaRoutingAPI
+@ExperimentalKaftorAPI
 data object EmptyRouteSelector : KafkaRouteSelector

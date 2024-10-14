@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kafka.routing
+package org.cufy.kaftor
 
 import io.ktor.util.*
 import kotlinx.datetime.Instant
@@ -50,9 +50,9 @@ object RoutingConfig {
     const val POLL_TIMEOUT = "routing.poll.timeout"
 }
 
-typealias RoutingKafkaConsumer = KafkaConsumer<String, ByteBuffer>
-typealias RoutingConsumerRecord = ConsumerRecord<String, ByteBuffer>
-typealias RoutingConsumerRecords = ConsumerRecords<String, ByteBuffer>
+typealias KaftorConsumer = KafkaConsumer<String, ByteBuffer>
+typealias KaftorConsumerRecord = ConsumerRecord<String, ByteBuffer>
+typealias KaftorConsumerRecords = ConsumerRecords<String, ByteBuffer>
 typealias RoutingInterceptor<T> = suspend KafkaRoutingContext.(T) -> Unit
 typealias Logger = org.slf4j.Logger
 
@@ -73,14 +73,14 @@ sealed interface KafkaEvent {
     @Stable
     val offset: KafkaOffset
 
-    @ExperimentalKafkaRoutingAPI
+    @ExperimentalKaftorAPI
     val attributes: Attributes
 }
 
 @Suppress("RedundantSuspendModifier")
 @Stable
 suspend fun KafkaEvent.commit() {
-    @OptIn(ExperimentalKafkaRoutingAPI::class)
+    @OptIn(ExperimentalKaftorAPI::class)
     offset.isCommitted = true
 }
 
@@ -89,8 +89,8 @@ sealed interface KafkaRecord {
     @Stable
     val event: KafkaEvent
 
-    @ExperimentalKafkaRoutingAPI
-    val raw: RoutingConsumerRecord
+    @ExperimentalKaftorAPI
+    val raw: KaftorConsumerRecord
 
     val offset: Long
     val topic: String
@@ -110,10 +110,10 @@ sealed interface KafkaOffset {
     @Stable
     val event: KafkaEvent
 
-    @ExperimentalKafkaRoutingAPI
+    @ExperimentalKaftorAPI
     var isCommitted: Boolean
 
-    @ExperimentalKafkaRoutingAPI
+    @ExperimentalKaftorAPI
     var error: Throwable?
 }
 
@@ -172,7 +172,7 @@ class KafkaApplication internal constructor(
     val environment: KafkaEnvironment,
     val developmentMode: Boolean,
 ) {
-    @ExperimentalKafkaRoutingAPI
+    @ExperimentalKaftorAPI
     val attributes: Attributes = Attributes(concurrent = true)
 }
 
