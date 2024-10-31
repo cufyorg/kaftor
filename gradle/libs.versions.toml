@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.0"
 kafka = "3.7.0"
-ktor = "2.3.12"
+ktor = "3.0.0"
 
 [plugins]
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
