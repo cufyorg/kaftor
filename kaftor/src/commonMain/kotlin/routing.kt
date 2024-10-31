@@ -15,7 +15,7 @@
  */
 package org.cufy.kaftor
 
-import org.cufy.kaftor.dsl.KaftorDsl
+import org.cufy.kaftor.utils.dsl.KaftorDsl
 
 @KaftorDsl
 @Stable

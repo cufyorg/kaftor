@@ -13,7 +13,7 @@
  *	See the License for the specific language governing permissions and
  *	limitations under the License.
  */
-package org.cufy.kaftor.dsl
+package org.cufy.kaftor.utils.dsl
 
 @DslMarker
 annotation class KaftorDsl

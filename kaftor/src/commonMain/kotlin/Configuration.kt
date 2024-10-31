@@ -1,10 +1,10 @@
 package org.cufy.kaftor
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.cufy.kaftor.util.BooleanProperty
-import org.cufy.kaftor.util.DurationMillisecondsProperty
-import org.cufy.kaftor.util.StringAsListProperty
-import org.cufy.kaftor.util.StringProperty
+import org.cufy.kaftor.utils.BooleanProperty
+import org.cufy.kaftor.utils.DurationMillisecondsProperty
+import org.cufy.kaftor.utils.StringAsListProperty
+import org.cufy.kaftor.utils.StringProperty
 import kotlin.time.Duration.Companion.milliseconds
 
 var KafkaRoute.bootstrapServers by StringAsListProperty(

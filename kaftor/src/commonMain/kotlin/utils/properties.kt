@@ -1,4 +1,4 @@
-package org.cufy.kaftor.util
+package org.cufy.kaftor.utils
 
 import org.cufy.kaftor.KafkaRoute
 import java.util.*
