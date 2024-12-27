@@ -99,7 +99,7 @@ sealed interface KafkaRecord {
     val timestampType: TimestampType
     val serializedKeySize: Int
     val serializedValueSize: Int
-    val key: String
+    val key: String?
     val value: ByteBuffer
     val headers: Headers
     val leaderEpoch: Int?

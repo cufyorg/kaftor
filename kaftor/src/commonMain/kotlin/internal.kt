@@ -93,7 +93,7 @@ private data class KafkaRecordImpl(
     override val timestampType: TimestampType,
     override val serializedKeySize: Int,
     override val serializedValueSize: Int,
-    override val key: String,
+    override val key: String?,
     override val value: ByteBuffer,
     override val headers: Headers,
     override val leaderEpoch: Int?,
