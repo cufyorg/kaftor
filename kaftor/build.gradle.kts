@@ -6,17 +6,16 @@ plugins {
 }
 
 kotlin {
-    jvm {
-        withJava()
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
     }
+    jvm()
     sourceSets {
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
-                implementation(libs.kotlin.serialization.core)
-                implementation(libs.kotlin.serialization.json)
-                implementation(libs.kotlin.datetime)
+                implementation(libs.kotlinx.serialization.json)
 
                 implementation(libs.ktor.utils)
             }

@@ -1,21 +1,15 @@
 [versions]
-kotlin = "2.0.0"
-kafka = "3.7.0"
-ktor = "3.0.0"
+kotlin = "2.2.0"
+kotlinx-serialization = "1.8.1"
 
-[plugins]
-gradle-plugin-publish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
+kafka = "4.0.0"
+ktor = "3.2.0"
 
 [libraries]
-kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.6.3" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
-kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.8.1" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
 kafka-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafka" }
-
-nomisrev-kotlinKafka = { module = "io.github.nomisrev:kotlin-kafka", version = "0.4.0" }
 
 ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktor" }
 
